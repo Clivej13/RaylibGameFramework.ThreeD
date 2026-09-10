@@ -7,7 +7,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageId>RaylibGameFramework.ThreeD</PackageId>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <Authors>RaylibGameFramework</Authors>
     <Description>Reusable 3D transforms, animation playback, material overrides, and particles for Raylib-cs.</Description>
   </PropertyGroup>

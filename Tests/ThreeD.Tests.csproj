@@ -5,10 +5,16 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="../RaylibGameFramework.ThreeD.csproj" />
   </ItemGroup>
+
+  <!-- This project uses a dependency-free console test harness. -->
+  <Target Name="RunFocusedTests" BeforeTargets="VSTest" DependsOnTargets="Build">
+    <Exec Command="dotnet &quot;$(TargetPath)&quot;" />
+  </Target>
 
 </Project>

@@ -2,7 +2,7 @@ using System.Numerics;
 using Raylib_cs;
 using RaylibGameFramework.ThreeD;
 
-static class Test
+static partial class Test
 {
     private static int _passed;
 
@@ -15,8 +15,15 @@ static class Test
         Run("particle lifetime", ParticleLifetime);
         Run("particle burst count", ParticleBurst);
         Run("local particle emission", LocalParticleEmission);
+        Run("known and missing bone lookup", BoneLookup);
+        Run("unavailable bone poses", BoneUnavailable);
+        Run("exact current animated frame", BoneCurrentFrame);
+        Run("bone hierarchy and native matrix convention", BoneHierarchyAndNativeConvention);
+        Run("independent animated instances", BoneIndependentInstances);
+        Run("bone queries do not mutate state", BoneQueryDoesNotMutate);
+        Run("animation playback regression", BonePlaybackRegression);
         Console.WriteLine($"{_passed} focused tests passed.");
-        if (_passed != 7) Environment.ExitCode = 1;
+        if (_passed != 14) Environment.ExitCode = 1;
     }
 
     private static void Run(string name, Action test)
@@ -46,7 +53,7 @@ static class Test
     {
         Transform3D transform = new(new Vector3(10, 2, -3),
             Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathF.PI / 2), Vector3.One);
-        Equal(new Vector3(9, 2, -4), transform.TransformPoint(new Vector3(1, 0, 0)));
+        Equal(new Vector3(10, 2, -4), transform.TransformPoint(new Vector3(1, 0, 0)));
     }
 
     private static void DirectionTransform()
@@ -61,7 +68,7 @@ static class Test
         Transform3D transform = new(Vector3.Zero,
             Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathF.PI / 2), new Vector3(2, 3, 4));
         Equal(new Vector3(0, 0, -2), transform.TransformPoint(Vector3.UnitX));
-        Equal(new Vector3(0, 0, -4), transform.TransformPoint(Vector3.UnitZ));
+        Equal(new Vector3(4, 0, 0), transform.TransformPoint(Vector3.UnitZ));
     }
 
     private static void AnimationTiming()
