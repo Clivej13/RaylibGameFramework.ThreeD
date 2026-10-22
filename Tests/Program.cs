@@ -22,8 +22,12 @@ static partial class Test
         Run("independent animated instances", BoneIndependentInstances);
         Run("bone queries do not mutate state", BoneQueryDoesNotMutate);
         Run("animation playback regression", BonePlaybackRegression);
+        Run("affine pose hierarchy round trip", PoseHierarchy);
+        Run("invalid and deep hierarchies", InvalidHierarchy);
+        Run("parent-local TRS blend", PoseBlend);
+        Run("independent applied pose snapshots", PoseSnapshot);
         Console.WriteLine($"{_passed} focused tests passed.");
-        if (_passed != 14) Environment.ExitCode = 1;
+        if (_passed != 18) Environment.ExitCode = 1;
     }
 
     private static void Run(string name, Action test)

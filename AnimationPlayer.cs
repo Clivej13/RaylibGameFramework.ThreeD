@@ -115,6 +115,23 @@ public sealed class AnimationPlayer
         return true;
     }
 
+    /// <summary>Copies the last applied model-space bone matrices in imported skeleton order.</summary>
+    /// <remarks>Does not advance playback. The caller owns the returned snapshot.
+    /// Returns an empty array when no valid pose is available, including a released instance.
+    /// Parent transforms are already included; do not compose the hierarchy again.</remarks>
+    public Matrix4x4[] SnapshotPose()
+    {
+        if (_appliedFrame < 0 || !TryGetModel(out _))
+            return [];
+        var result = new Matrix4x4[_appliedPose.Length];
+        for (int i = 0; i < result.Length; i++)
+        {
+            Transform pose = _appliedPose[i];
+            result[i] = new Transform3D(pose.Translation, pose.Rotation, pose.Scale).WorldMatrix;
+        }
+        return result;
+    }
+
     private bool TryGetModel(out Model model)
     {
         model = default;

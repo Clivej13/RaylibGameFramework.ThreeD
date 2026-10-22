@@ -32,6 +32,20 @@ public struct Transform3D
         Matrix4x4.CreateFromQuaternion(Rotation) *
         Matrix4x4.CreateTranslation(Position);
 
+    /// <summary>Blends position and scale linearly, and rotation along the shortest quaternion arc.</summary>
+    /// <remarks>Inputs must have unit rotations. Amount is clamped to [0, 1].
+    /// Blend parent-local bone transforms before composing the hierarchy.
+    /// This interpolates TRS only and does not preserve affine shear.</remarks>
+    public static Transform3D Blend(Transform3D from, Transform3D to, float amount)
+    {
+        if (!float.IsFinite(amount))
+            throw new ArgumentOutOfRangeException(nameof(amount));
+        amount = Math.Clamp(amount, 0f, 1f);
+        return new(Vector3.Lerp(from.Position, to.Position, amount),
+            Quaternion.Slerp(from.Rotation, to.Rotation, amount),
+            Vector3.Lerp(from.Scale, to.Scale, amount));
+    }
+
     public readonly Vector3 Forward => TransformDirection(-Vector3.UnitZ);
     public readonly Vector3 Up => TransformDirection(Vector3.UnitY);
     public readonly Vector3 Right => TransformDirection(Vector3.UnitX);
