@@ -74,6 +74,51 @@ References:
 [Raylib-cs structures](https://github.com/raylib-cs/raylib-cs/blob/v8.0.0/Raylib-cs/types/Model.cs),
 [Raylib pose loading and animation implementation](https://github.com/raysan5/raylib/blob/6.0/src/rmodels.c).
 
+## Pose snapshots and hierarchy conversion
+
+`AnimationPlayer.SnapshotPose()` returns a caller-owned array in imported bone
+order, using the same last-applied pose as named lookup. It neither advances
+playback nor exposes native buffers. An unavailable pose returns an empty array.
+Each call allocates; retain snapshots only when needed.
+
+`SkeletonHierarchy` copies parent indices (-1 for roots), validates ranges and
+cycles, and accepts arbitrary bone order and multiple roots. Its
+`ToLocalSpace` and `ToModelSpace` methods return new arrays in the original
+bone order. Inputs must contain one finite affine matrix per bone.
+Local conversion rejects singular parent matrices. Empty hierarchies are valid.
+Neither method decomposes matrices, so nonuniform scale and shear survive.
+
+```csharp
+// parentIndices comes from the imported skeleton, in the same order as the pose.
+var hierarchy = new SkeletonHierarchy(parentIndices);
+Matrix4x4[] capturedModel = animationPlayer.SnapshotPose();
+Matrix4x4[] local = hierarchy.ToLocalSpace(capturedModel);
+// Edit a local bone or retain it as an attachment offset.
+Matrix4x4[] model = hierarchy.ToModelSpace(local);
+Matrix4x4 boneWorld = model[boneIndex] * modelToWorld;
+```
+
+`Transform3D.Blend(from, to, amount)` blends translation/scale linearly and
+unit quaternion rotations along the shortest arc. Finite amounts clamp to
+[0, 1]; NaN/infinity throw. Blend parent-local TRS before hierarchy composition:
+
+```csharp
+Transform3D blended = Transform3D.Blend(startLocal, targetLocal, blendWeight);
+local[boneIndex] = blended.WorldMatrix;
+model = hierarchy.ToModelSpace(local);
+```
+
+TRS blending cannot represent shear. Keep affine matrices when exact preservation
+is needed; no approximate rigid decomposition or residual-shear blending is
+silently applied. These APIs do not apply a custom pose to a native model.
+Do not feed Raylib's already model-space snapshot directly to `ToModelSpace`.
+
+## Extraction scope
+
+See [the extraction assessment](docs/TackleAlleyExtraction.md) for source
+provenance, exclusions, and the proposed Character/Physics boundary.
+No game assets, configuration, input package, or source-game reference was added.
+
 ## Validation
 
 ```text
